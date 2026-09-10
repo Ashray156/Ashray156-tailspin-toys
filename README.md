@@ -73,6 +73,10 @@ npm run lint
 
 ESLint is also run automatically in CI on pull requests to `main`.
 
+## Accessibility
+
+The site includes a high-contrast mode toggle in the header. The preference is stored in `localStorage` under `tailspin-high-contrast` and restored before the page is painted, so it persists across page reloads without a flash of the default theme. Accessibility E2E coverage includes automated axe scans, keyboard navigation, focus indicators, and high-contrast preference persistence.
+
 ## Type checking
 
 The project runs on **TypeScript 7** (the native Go compiler, `tsgo`) for type checking, adopted side-by-side via the [`@typescript/native-preview`](https://www.npmjs.com/package/@typescript/native-preview) package. The classic `typescript` package is intentionally kept at v6 so ESLint + `typescript-eslint` and `astro check` keep working unchanged — TypeScript 7's programmatic API isn't ready for those tools yet.
