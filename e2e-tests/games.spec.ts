@@ -24,6 +24,38 @@ test.describe('Game Listing and Navigation', () => {
     });
   });
 
+  test('should filter games by category and publisher and clear filters', async ({ page }) => {
+    await page.goto('/');
+    const cards = page.getByTestId('game-card');
+    const initialCount = await cards.count();
+    const firstCard = cards.first();
+    const categoryId = await firstCard.getAttribute('data-category-id');
+    const publisherId = await firstCard.getAttribute('data-publisher-id');
+
+    await page.getByTestId(`category-filter-${categoryId}`).check();
+    await page.getByTestId('publisher-filter').selectOption(publisherId!);
+
+    await expect(page.getByTestId('filter-result-count')).toHaveText('Showing 1 games');
+    await expect(page.locator('[data-testid="game-card"]:visible')).toHaveCount(1);
+
+    await page.getByTestId('clear-filters').click();
+    await expect(page.getByTestId('filter-result-count')).toHaveText(`Showing ${initialCount} games`);
+    await expect(page.locator('[data-testid="game-card"]:visible')).toHaveCount(initialCount);
+  });
+
+  test('should show an empty state when filters have no matches', async ({ page }) => {
+    await page.goto('/');
+    await page.getByTestId('publisher-filter').evaluate((select) => {
+      const publisherSelect = select as HTMLSelectElement;
+      publisherSelect.add(new Option('No matching publisher', '99999'));
+      publisherSelect.value = '99999';
+      publisherSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    await expect(page.getByTestId('filter-result-count')).toHaveText('Showing 0 games');
+    await expect(page.getByTestId('filtered-empty-state')).toBeVisible();
+  });
+
   test('should navigate to correct game details page when clicking on a game', async ({ page }) => {
     let gameId: string | null;
     let gameTitle: string | null;
